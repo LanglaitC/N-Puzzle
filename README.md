@@ -14,7 +14,7 @@ Le restant des lignes est dedie a la definition du taquin ex:
 `12 9  1  3`\
 `14 2  6  7`\
 `4  5  10 11`\
-`8  13 15` \
+`8  13 15`
 
 ## Valeur de retour
 On retourne :
