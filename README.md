@@ -1,8 +1,8 @@
-#N-Puzzle
+# N-Puzzle
 Un projet algorithmique issu de l'ecole 42. 
 L'objectif est de resoudre un taquin passe en argument
 
-##Usage
+## Usage
 On definit un taquin dans un fichier txt
 Format du fichier txt
 
@@ -16,7 +16,7 @@ Le restant des lignes est dedie a la definition du taquin ex:
 4  5  10 11
 8  13 15 
 
-##Valeur de retour
+## Valeur de retour
 On retourne :
 - le nombre de mouvements optimal necessaires pour arriver de l'etat initial a
 a la solution selon notre algorithme.
