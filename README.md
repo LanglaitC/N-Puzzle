@@ -8,13 +8,13 @@ Format du fichier txt
 
 `#` permet de commenter une ligne du fichier
 La premier ligne non commente doit contenir la dimension du taquin sous la forme
-d'un chiffre : ex "3" pour un puzzle 3x3
+d'un chiffre : ex `3` pour un puzzle 3x3
 Le restant des lignes est dedie a la definition du taquin ex:
-4
-12 9  1  3
-14 2  6  7
-4  5  10 11
-8  13 15 
+`4`
+`12 9  1  3`
+`14 2  6  7`
+`4  5  10 11`
+`8  13 15` 
 
 ## Valeur de retour
 On retourne :
