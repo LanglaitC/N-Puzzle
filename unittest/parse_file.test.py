@@ -27,7 +27,9 @@ class TestParseFile(unittest.TestCase):
         self.assertTrue("File is not valid format" in context.exception);
 
     def test_splited_3x3(self):
-        self.assertRaises(parse_file("testFiles/invalids/splited_3x3.txt"));
+        with self.assertRaises(Exception) as context:
+            self.assertRaises(parse_file("testFiles/invalids/splited_3x3.txt"));
+        self.assertTrue("Lign is empty" in context.exception);
 
 if __name__ == '__main__':
     unittest.main();

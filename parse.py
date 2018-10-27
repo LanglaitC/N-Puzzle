@@ -20,6 +20,8 @@ def parse_file(file):
                     convert.append(int(each));
                 except Exception as e:
                     raise e;
+            if len(convert) == 0:
+                raise Exception("Lign is empty");
             result.append(convert);
     if len(result) < 2:
         raise Exception("File is not valid format");
