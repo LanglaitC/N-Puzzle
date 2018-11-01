@@ -1,5 +1,7 @@
 import sys
 
+comment_charac = '#';
+
 def check_validity(tab, dim):
     '''Function that goes through the parsed result and throws an error if it is of invalid dimension, contains any duplicate or any character out of valid range'''
     vert_dim = len(tab);
@@ -23,6 +25,8 @@ def parse_line(line):
     convert = [];
     for each in line.split():
         try:
+            if each[0] == comment_charac: ## If comment character is detected stop analysing the line
+                break ;
             convert.append(int(each));  ## If the element can't be converted to int then it contains letters and is not a valid element
         except Exception as e:
             raise e;
@@ -37,7 +41,7 @@ def is_comment(line):
     for each in line:
         if each in ' \t':
             pass;
-        elif each == '#':   ## Return true if it encounters nothing but whitespaces between start of the line and the first #
+        elif each == comment_charac:   ## Return true if it encounters nothing but whitespaces between start of the line and the first #
             return True;
         else:               ## Else return false, the line is not a comment
             return False;

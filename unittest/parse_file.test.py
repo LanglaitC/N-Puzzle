@@ -9,6 +9,10 @@ class TestParseFile(unittest.TestCase):
     
     def test_valid_3x3_with_comments(self):
         self.assertEqual([[1, 3, 2], [0, 4, 6], [8, 7, 5]], parse_file("testFiles/valids/3x3_comment.txt"));
+
+    def test_valid_3x3_with_comments_inline(self):
+        self.assertEqual([[1, 3, 2], [0, 4, 6], [8, 7, 5]], parse_file("testFiles/valids/3x3_comment_inline.txt"));
+
     
     def test_empty_file(self):
         with self.assertRaises(Exception) as context:
