@@ -13,22 +13,22 @@ class TestParseFile(unittest.TestCase):
     def test_empty_file(self):
         with self.assertRaises(Exception) as context:
             parse_file("testFiles/invalids/empty_file.txt");
-        self.assertTrue("Lign is empty" in context.exception);
+        self.assertTrue("Your taquin should be at least 2x2" in context.exception);
 
     def test_only_comment(self):
         with self.assertRaises(Exception) as context:
             parse_file("testFiles/invalids/only_comment.txt")
-        self.assertTrue("Lign is empty" in context.exception);
+        self.assertTrue("Your taquin should be at least 2x2" in context.exception);
 
     def test_one_dimension_taquin(self):
         with self.assertRaises(Exception) as context:
             self.assertRaises(parse_file("testFiles/invalids/1x1_taquin.txt"));
-        self.assertTrue("File is not valid format" in context.exception);
+        self.assertTrue("Your taquin should be at least 2x2" in context.exception);
 
     def test_splited_3x3(self):
         with self.assertRaises(Exception) as context:
             self.assertRaises(parse_file("testFiles/invalids/splited_3x3.txt"));
-        self.assertTrue("Lign is empty" in context.exception);
+        self.assertTrue("Invalid file, taquin should be a square" in context.exception);
     
     def test_4x3(self):
         with self.assertRaises(Exception) as context:
@@ -42,7 +42,7 @@ class TestParseFile(unittest.TestCase):
 
     def test_out_of_range_3x3(self):
         with self.assertRaises(Exception) as context:
-            self.assertRaises(parse_file("testFiles/invalids/out_of_range_3x3.txt"));        print(context.exception);
+            self.assertRaises(parse_file("testFiles/invalids/out_of_range_3x3.txt"));
         self.assertTrue("Character 9 is out of range should be between 0 and 8, position : (3,3)" in context.exception);
 
     def test_negative_number_3x3(self):

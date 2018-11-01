@@ -5,7 +5,7 @@ def check_validity(tab, dim):
     vert_dim = len(tab);
     hash_tab = {};  ## Hash tab is filed as we go through the parsed taquin to easily detect duplicates
     if vert_dim < 2:
-        raise Exception("File is not valid format");
+        raise Exception("Your taquin should be at least 2x2");
     if vert_dim != dim: ## Check if the given taquin got as much line as column, else it is not a valid one
         raise Exception("Invalid file, taquin should be a square");
     for i in range(dim):
