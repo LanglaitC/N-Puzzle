@@ -2,9 +2,8 @@ import math;
 from generator import *;
 
 class Model:
-    def __init__(self, tab):
-        self.tab = tab
-        self.dim = len(tab)
+    def __init__(self, len):
+        self.dim = len
         self.model = self.build()
 
     def build(self):
