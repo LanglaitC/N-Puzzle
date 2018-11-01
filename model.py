@@ -1,4 +1,5 @@
 import math;
+from generator import *;
 
 class Model:
     def __init__(self, tab):
@@ -35,9 +36,10 @@ class Model:
 
 
     def print_tab(self, arr):
+        padding = find_padding(len(arr) * len(arr));
         for i in range(len(arr)):
             for j in range(len(arr[i])):
-                print arr[i][j],
+                print str(arr[i][j]).ljust(padding),
             print
             
         

@@ -2,13 +2,11 @@ import parse;
 import sys;
 from model import *;
 
-# res = parse.parse_file(sys.argv[1]);
-# tab= [[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]]
-# tab= [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]]
-# tab= [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
-# tab= [[0,0,0],[0,0,0],[0,0,0]]
-# tab= [[0,0],[0,0]]
-tab = [];
-for i in range(10):
-    tab.append(range(10))
-model = Model(tab)
+try:
+    ##TODO if no argument is given make a random puzzle
+    res = parse.parse_file(sys.argv[1]);
+    Model(res); 
+except Exception as e:
+    raise e;
+    exit(1);
+
