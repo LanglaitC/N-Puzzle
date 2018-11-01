@@ -11,7 +11,6 @@ class Model:
         x = int(math.ceil(self.dim / 2))
         model = [[]]
         model = [[0 for i in range(self.dim)] for j in range(self.dim)]
-        self.print_tab(model)
         s = 0
         for l in range(x):
             k = 0
@@ -32,14 +31,16 @@ class Model:
                 p -= 1
                 k += 1
             s += 2 * n + 2 * (n - 2)
-        self.print_tab(model)
+        return model
 
 
-    def print_tab(self, arr):
-        padding = find_padding(len(arr) * len(arr));
-        for i in range(len(arr)):
-            for j in range(len(arr[i])):
-                print str(arr[i][j]).ljust(padding),
-            print
+    def __str__(self):
+        padding = find_padding(len(self.model) * len(self.model)) + 1;
+        res = "";
+        for i in range(len(self.model)):
+            for j in range(len(self.model[i])):
+                res += str(str(self.model[i][j]).ljust(padding))
+            res += '\n';
+        return res;
             
         
