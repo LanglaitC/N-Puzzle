@@ -49,6 +49,12 @@ class TestParseFile(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             self.assertRaises(parse_file("testFiles/invalids/negative_number_3x3.txt"));
         self.assertTrue("Character -1 is out of range should be between 0 and 8, position : (1,1)" in context.exception);
+    
+    def test_duplicate_character(self):
+        with self.assertRaises(Exception) as context:
+            self.assertRaises(parse_file("testFiles/invalids/duplicate_character_3x3.txt"));
+        self.assertTrue("Duplicate Character 2 at position : (1,3)" in context.exception);
+
 
 class TestParseLine(unittest.TestCase):
     def test_valid_line(self):

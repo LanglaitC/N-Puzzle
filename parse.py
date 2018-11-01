@@ -14,7 +14,7 @@ def check_validity(tab, dim):
             if tab[i][j] not in hash_tab:
                 hash_tab[tab[i][j]] = 1;
             else:
-                raise Exception("Duplicate Character " + str(tab[i][j]) + " at position : (" + str(i + 1) + "," + str(j + 1) + ") is invalid");
+                raise Exception("Duplicate Character " + str(tab[i][j]) + " at position : (" + str(i + 1) + "," + str(j + 1) + ")");
     return tab;
 
 def parse_line(line):
