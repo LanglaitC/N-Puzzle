@@ -1,12 +1,12 @@
 import math
 from generator import *
-
+## Class to determine if puzzle is solvable
 class Puzzle:
     def __init__(self, res, model):
         self.tak = res
         self.model = model
         self.solvable = self.find_d() % 2 == self.find_p() % 2
-        # print self.solvable
+        print self.solvable
 
 
     def find_d(self):

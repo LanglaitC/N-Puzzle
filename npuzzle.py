@@ -3,6 +3,7 @@ import sys;
 from model import *;
 from puzzle import *;
 from heuristic import*;
+from a_star import*;
 
 try:
     ##TODO if no argument is given make a random puzzle

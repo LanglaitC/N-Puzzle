@@ -1,5 +1,5 @@
 import math
-
+## Methods making the calculation of the heuristic h(x)
 class Heuristic:
     def __init__(self, res, model):
         self.dim = len(res)
@@ -19,7 +19,7 @@ class Heuristic:
         for i in range(self.dim * self.dim):
             if tab[i] != model_tab[i]:
                 count += 1
-        print count
+        print ('miss_placed :', count)
         return count
 
     def mannhathan(self):
@@ -29,7 +29,7 @@ class Heuristic:
                 if self.tak[i][j] != self.model[i][j]:
                     val = self.tak[i][j]
                     dist += math.fabs(j - self.find_x(val)) + math.fabs(i - self.find_y(val))
-        print dist
+        print ('mannhatan :', dist)
         return dist
 
 
@@ -46,7 +46,3 @@ class Heuristic:
                 if self.model[i][j] == val:
                     return i
     
-
-
-
- 

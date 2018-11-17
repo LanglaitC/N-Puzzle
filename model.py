@@ -1,6 +1,6 @@
 import math;
 from generator import *;
-
+## Class generating the solution's state
 class Model:
     def __init__(self, len):
         self.dim = len
