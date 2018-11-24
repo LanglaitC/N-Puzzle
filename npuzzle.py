@@ -13,6 +13,7 @@ try:
     tak = Puzzle(res, model)
     print(tak)
     Heuristic(res, model);
+    A_star(res, model);
 except Exception as e:
    raise e;
    exit(1);
