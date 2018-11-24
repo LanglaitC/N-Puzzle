@@ -21,7 +21,7 @@ class A_star:
             "h":h.mannhathan(),
             "g":0,
             "id":1,
-            "ancestor":[]
+            "ancestors":[]
         }
         # print ('begin', self.begin)
         return self.begin
@@ -54,6 +54,15 @@ class A_star:
         self.index += 1
         return elem
 
+    def is_not_ancestor(self, matrix, e):
+        present = True
+        for elem in e["ancestors"]:
+            if matrix == elem["matrix"]:
+                present = False
+                break
+        return present
+
+
 
     def expand(self, e):
         states = []
@@ -66,23 +75,27 @@ class A_star:
         if x0 != 0:
             matrix = copy.deepcopy(e["matrix"])
             matrix[y0][x0 - 1],matrix[y0][x0] = matrix[y0][x0],matrix[y0][x0 - 1]
-            elem = self.create_elem(matrix, e)
-            states.append(elem)
+            if self.is_not_ancestor(matrix, e):
+                elem = self.create_elem(matrix, e)
+                states.append(elem)
         if x0 != self.dim - 1:
             matrix = copy.deepcopy(e["matrix"])
             matrix[y0][x0 + 1],matrix[y0][x0] = matrix[y0][x0],matrix[y0][x0 + 1]
-            elem = self.create_elem(matrix, e)
-            states.append(elem)
+            if self.is_not_ancestor(matrix, e):
+                elem = self.create_elem(matrix, e)
+                states.append(elem)
         if y0 != 0:
             matrix = copy.deepcopy(e["matrix"])
             matrix[y0 - 1][x0],matrix[y0][x0] = matrix[y0][x0],matrix[y0 - 1][x0]
-            elem = self.create_elem(matrix, e)
-            states.append(elem)
+            if self.is_not_ancestor(matrix, e):
+                elem = self.create_elem(matrix, e)
+                states.append(elem)
         if y0 != self.dim - 1:
             matrix = copy.deepcopy(e["matrix"])
             matrix[y0 + 1][x0],matrix[y0][x0] = matrix[y0][x0],matrix[y0 + 1][x0]
-            elem = self.create_elem(matrix, e)
-            states.append(elem)
+            if self.is_not_ancestor(matrix, e):
+                elem = self.create_elem(matrix, e)
+                states.append(elem)
         sorted_states = sorted(states, key=lambda k: k['h'])
         return sorted_states
 
@@ -111,6 +124,9 @@ class A_star:
     def algo(self):
         self.opened.append(self.begin)
         while self.opened and not self.success:
+        # i = 0
+        # while i < 5 and self.opened:
+            # i += 1
             e = self.select_with_strategy()
             self.success = (e['matrix'] == self.solution['matrix'])
             if self.success == True:
@@ -119,19 +135,26 @@ class A_star:
                 self.opened.remove(e)
                 self.closed.append(e)
                 states = self.expand(e)
+                # print ("NEW LEVEL")
+                # print ('E_CURRENT', e)
+                # print ('states', states)
                 for s in states:
                     if not self.is_present_in_either(s["matrix"]):
                         self.opened.append(s)
-                        # print ('opened', self.opened)
-                        s["ancestors"].append(e["id"])
+                        s["ancestors"].append(e)
                         s["g"] = e["g"] + 1
+                        # print ("ABSENT")
                     else:
                         if (s["g"] + s['h']) > e["g"] + 1 + s["h"]:
                             s["g"] = e["g"] + 1
-                            s["ancestors"].append[e["id"]]
+                            s["ancestors"].append[e]
                             if self.is_present_in_closed(s["matrix"]):
                                 self.closed.remove(s)
                                 self.opened.append(s)
+                                # print ("INTO CLOSED")
+                    #         else:
+                    #             print ("INTO OPENED")
+                    # print ('s', s)
         if self.success:
             print ("YAY")
             # print ('opened', self.opened)
