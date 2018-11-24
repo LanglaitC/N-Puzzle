@@ -68,7 +68,7 @@ class A_star:
             matrix[y0][x0 - 1],matrix[y0][x0] = matrix[y0][x0],matrix[y0][x0 - 1]
             elem = self.create_elem(matrix, e)
             states.append(elem)
-        if x0 != self.dim:
+        if x0 != self.dim - 1:
             matrix = copy.deepcopy(e["matrix"])
             matrix[y0][x0 + 1],matrix[y0][x0] = matrix[y0][x0],matrix[y0][x0 + 1]
             elem = self.create_elem(matrix, e)
@@ -78,7 +78,7 @@ class A_star:
             matrix[y0 - 1][x0],matrix[y0][x0] = matrix[y0][x0],matrix[y0 - 1][x0]
             elem = self.create_elem(matrix, e)
             states.append(elem)
-        if y0 != self.dim:
+        if y0 != self.dim - 1:
             matrix = copy.deepcopy(e["matrix"])
             matrix[y0 + 1][x0],matrix[y0][x0] = matrix[y0][x0],matrix[y0 + 1][x0]
             elem = self.create_elem(matrix, e)
@@ -110,27 +110,31 @@ class A_star:
 
     def algo(self):
         self.opened.append(self.begin)
-        # while self.opened and not self.success:
-        e = self.select_with_strategy()
-        self.success = (e['matrix'] == self.solution['matrix'])
-        if not self.success:
-            self.opened.remove(e)
-            self.closed.append(e)
-            states = self.expand(e)
-            for s in states:
-                if not self.is_present_in_either(s["matrix"]):
-                    self.opened.append(s)
-                    s["ancestors"].append(e["id"])
-                    s["g"] = e["g"] + 1
-                else:
-                    if (s["g"] + s['h']) > e["g"] + 1 + s["h"]:
+        while self.opened and not self.success:
+            e = self.select_with_strategy()
+            self.success = (e['matrix'] == self.solution['matrix'])
+            if self.success == True:
+                print ('E', e)
+            if not self.success:
+                self.opened.remove(e)
+                self.closed.append(e)
+                states = self.expand(e)
+                for s in states:
+                    if not self.is_present_in_either(s["matrix"]):
+                        self.opened.append(s)
+                        # print ('opened', self.opened)
+                        s["ancestors"].append(e["id"])
                         s["g"] = e["g"] + 1
-                        s["ancestors"].append[e["id"]]
-                        if self.is_present_in_closed(s["matrix"]):
-                            self.closed.remove(s)
-                            self.opened.append(s)
-        # if self.success
-        #     print ("YAY")
+                    else:
+                        if (s["g"] + s['h']) > e["g"] + 1 + s["h"]:
+                            s["g"] = e["g"] + 1
+                            s["ancestors"].append[e["id"]]
+                            if self.is_present_in_closed(s["matrix"]):
+                                self.closed.remove(s)
+                                self.opened.append(s)
+        if self.success:
+            print ("YAY")
+            # print ('opened', self.opened)
 
 
 
