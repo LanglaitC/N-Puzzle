@@ -1,5 +1,5 @@
-import math;
-from generator import *;
+import math
+from generator import *
 
 class Model:
     def __init__(self, len):
@@ -34,12 +34,12 @@ class Model:
 
 
     def __str__(self):
-        padding = find_padding(len(self.model) * len(self.model)) + 1;
-        res = "";
+        padding = find_padding(len(self.model) * len(self.model)) + 1
+        res = ""
         for i in range(len(self.model)):
             for j in range(len(self.model[i])):
                 res += str(str(self.model[i][j]).ljust(padding))
-            res += '\n';
-        return res;
+            res += '\n'
+        return res
             
         
