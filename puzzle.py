@@ -9,8 +9,19 @@ class Puzzle:
         self.model = model
         self.solvable = self.find_d() % 2 == self.find_p() % 2
         self.heuristic = {"newton": self.newton_heuristic, "outta_place": self.outta_place_heuristic}
+        self.model = self.to_tuple(self.model)
+        self.tak = self.to_tuple(self.tak)
+        print ('tak', self.tak)
         self.solve()
 
+    def to_tuple(self, matrix):
+        tab = []
+        if type(matrix[0]) is not list:
+            return matrix
+        else:
+            for i in range (len(matrix)):
+                tab = tab + self.to_tuple(matrix[i])
+        return tuple(tab)
 
     def find_d(self):
         for i in range(len(self.tak)):
@@ -79,9 +90,8 @@ class Puzzle:
         for each in opened:
             if each["tak"] == new["tak"] and each["cost"] <= new["cost"]:
                 return True
-        for each in closed:
-            if each["tak"] == new["tak"]:
-                return True
+        if tuple(new["tak"]) in closed:
+            return True
         return False
 
     def find_all_neighbours(self, tab):
@@ -118,7 +128,7 @@ class Puzzle:
             print("Taquin isn't solvable, try a new one")
         else:
             open_list = [{"tak": self.tak, "h": 0, "c":0, "cost":0}]
-            closed_list = []
+            closed_list = {}
             i = 0
             while len(open_list):
                 current = open_list.pop(0)
@@ -140,7 +150,7 @@ class Puzzle:
                         open_list.insert(0, each)
                 if i % 300 == 0:
                     print('open :', len(open_list))
-                closed_list.append(current)
+                closed_list[tuple(current.tak)] = current
                 open_list.sort(key=lambda x: x['cost'], reverse=False)
                 
                 
