@@ -1,6 +1,7 @@
 import math
 from generator import *
 import copy
+import time
 
 class Puzzle:
     def __init__(self, res, model):
@@ -11,7 +12,6 @@ class Puzzle:
         self.heuristic = {"newton": self.newton_heuristic, "outta_place": self.outta_place_heuristic}
         self.model = self.to_tuple(self.model)
         self.tak = self.to_tuple(self.tak)
-        print ('tak', self.tak)
         self.solve()
 
     def to_tuple(self, matrix):
@@ -65,61 +65,78 @@ class Puzzle:
         return res
 
     def find_elem(self, tab, elem):
-        for i in range(len(tab)):
-            for j in range(len(tab)):
-                if tab[i][j] == elem:
-                    return {"x": j, "y": i}
+        for i in range(self.dim):
+            for j in range(self.dim):
+                if tab[i * self.dim + j] == elem:
+                    return i * self.dim + j
 
     def newton_heuristic(self, tab):
         res = 0
         for i in range(self.dim):
             for j in range(self.dim):
-                pos_in_model = self.find_elem(self.model, tab[i][j])
-                res += math.fabs(pos_in_model['x'] - j) + math.fabs(pos_in_model['y'] - i)
+                pos = i * self.dim + j
+                pos_in_model = self.find_elem(self.model, tab[i * self.dim + j])
+                res += math.fabs(pos_in_model % self.dim - pos % self.dim) + math.fabs(math.floor(pos_in_model / self.dim) - math.floor(pos / self.dim))
         return res
 
     def outta_place_heuristic(self, tab):
         res = 0
         for i in range(self.dim):
             for j in range(self.dim):
-                if (tab[i][j] != self.model[i][j]):
+                if (tab[i * self.dim + j] != self.model[i * self.dim + j]):
                     res += 1
-        return res * 3
+        return res
     
     def isInList(self, new, opened, closed):
         for each in opened:
             if each["tak"] == new["tak"] and each["cost"] <= new["cost"]:
                 return True
         if tuple(new["tak"]) in closed:
+            if (closed[tuple(new['tak'])]['cost'] > new['cost']):
+                return False
             return True
         return False
+
+    def get_result_in_order(self, oldest):
+        res = []
+        while (oldest['parent']):
+            res.insert(0, {'tak': oldest['tak'], 'h':oldest['h']})
+            oldest = oldest['parent']
+        return (res)
+
+    def print_result(self, tab, h):
+        print('Heuristic: ' +  str(h))
+        for i in range(self.dim):
+            print(tab[i*self.dim:i*self.dim+self.dim])
+        print('\n')
+        return True
 
     def find_all_neighbours(self, tab):
         pos0 = None
         res =  []
         for i in range(self.dim):
             for j in range(self.dim):
-                if tab[i][j] == 0:
-                    pos0 = {"y": i, "x": j}
+                if tab[i * self.dim + j] == 0:
+                    pos0 = i * self.dim + j
                     break
             if pos0 is not None:
                 break
-        if pos0["y"] != 0:
-            new = copy.deepcopy(tab)
-            new[pos0["y"]][pos0["x"]], new[pos0["y"] - 1][pos0["x"]] = new[pos0["y"] - 1][pos0["x"]], new[pos0["y"]][pos0["x"]]
-            res.append(new)
-        if pos0["y"] != self.dim - 1:
-            new = copy.deepcopy(tab)
-            new[pos0["y"]][pos0["x"]], new[pos0["y"] + 1][pos0["x"]] = new[pos0["y"] + 1][pos0["x"]], new[pos0["y"]][pos0["x"]]
-            res.append(new)
-        if pos0["x"] != 0:            
-            new = copy.deepcopy(tab)
-            new[pos0["y"]][pos0["x"]], new[pos0["y"]][pos0["x"] - 1] = new[pos0["y"]][pos0["x"] - 1], new[pos0["y"]][pos0["x"]]
-            res.append(new)
-        if pos0["x"] != self.dim - 1:
-            new = copy.deepcopy(tab)
-            new[pos0["y"]][pos0["x"]], new[pos0["y"]][pos0["x"] + 1] = new[pos0["y"]][pos0["x"] + 1], new[pos0["y"]][pos0["x"]]
-            res.append(new)
+        if pos0 % self.dim != 0:
+            new = list(tab)
+            new[pos0], new[pos0 - 1] = new[pos0 - 1], new[pos0]
+            res.append(tuple(new))
+        if pos0 % self.dim != self.dim - 1:
+            new = list(tab)
+            new[pos0], new[pos0 + 1] = new[pos0 + 1], new[pos0]
+            res.append(tuple(new))
+        if pos0 / self.dim >= 1: 
+            new = list(tab)
+            new[pos0], new[pos0 - self.dim] = new[pos0 - self.dim], new[pos0]
+            res.append(tuple(new))
+        if pos0 / self.dim < self.dim - 1:
+            new = list(tab)
+            new[pos0], new[pos0 + self.dim] = new[pos0 + self.dim], new[pos0]
+            res.append(tuple(new))
         return res
 
 
@@ -127,30 +144,32 @@ class Puzzle:
         if (self.solvable == False):
             print("Taquin isn't solvable, try a new one")
         else:
-            open_list = [{"tak": self.tak, "h": 0, "c":0, "cost":0}]
+            open_list = [{"tak": self.tak, "h": 0, "c":0, "cost":0, 'parent':False}]
             closed_list = {}
             i = 0
             while len(open_list):
+                i += 1
                 current = open_list.pop(0)
                 if current["tak"] == self.model:
-                    print(current)
+                    #result = self.get_result_in_order(current)
+                    print(current['c']);
+                    #for each in result:
+                    #    self.print_result(each['tak'], each['h'])
                     return True
                 neighbours = self.find_all_neighbours(current["tak"])
                 to_insert = []
                 for each in neighbours:
-                    new = {"tak":each, "h":self.heuristic["newton"](each) ,"c": current["c"] + 1}
+                    new = {"tak":each, "h":self.heuristic["newton"](each) ,"c": current["c"] + 1, "parent": current}
                     new["cost"] = new["h"] + new["c"]
                     to_insert.append(new)
                 to_insert.sort(key=lambda x: x['cost'], reverse=True)
                 for each in to_insert:
                     if self.isInList(each, open_list, closed_list):
-                        i += 1
                         pass
                     else:
                         open_list.insert(0, each)
-                if i % 300 == 0:
-                    print('open :', len(open_list))
-                closed_list[tuple(current.tak)] = current
+                #print(len(open_list))
+                closed_list[tuple(current['tak'])] = current
                 open_list.sort(key=lambda x: x['cost'], reverse=False)
                 
                 
