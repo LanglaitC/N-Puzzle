@@ -88,11 +88,10 @@ class Puzzle:
         return res
     
     def isInList(self, new, opened, closed):
-        for each in opened:
-            if each["tak"] == new["tak"] and each["cost"] <= new["cost"]:
-                return True
-        if tuple(new["tak"]) in closed:
-            if (closed[tuple(new['tak'])]['cost'] > new['cost']):
+        if new['tak'] in opened:
+            return True
+        if new["tak"] in closed:
+            if (closed[new['tak']] > new['cost']):
                 return False
             return True
         return False
@@ -145,6 +144,8 @@ class Puzzle:
             print("Taquin isn't solvable, try a new one")
         else:
             open_list = [{"tak": self.tak, "h": 0, "c":0, "cost":0, 'parent':False}]
+            open_list_hash = {}
+            open_list_hash[open_list[0]['tak']] = open_list[0]['cost']
             closed_list = {}
             i = 0
             while len(open_list):
@@ -156,6 +157,7 @@ class Puzzle:
                     #for each in result:
                     #    self.print_result(each['tak'], each['h'])
                     return True
+                del open_list_hash[current['tak']]
                 neighbours = self.find_all_neighbours(current["tak"])
                 to_insert = []
                 for each in neighbours:
@@ -164,12 +166,12 @@ class Puzzle:
                     to_insert.append(new)
                 to_insert.sort(key=lambda x: x['cost'], reverse=True)
                 for each in to_insert:
-                    if self.isInList(each, open_list, closed_list):
+                    if self.isInList(each, open_list_hash, closed_list):
                         pass
                     else:
                         open_list.insert(0, each)
-                #print(len(open_list))
-                closed_list[tuple(current['tak'])] = current
+                        open_list_hash[each['tak']] = each['cost']
+                closed_list[current['tak']] = current['cost']
                 open_list.sort(key=lambda x: x['cost'], reverse=False)
                 
                 
