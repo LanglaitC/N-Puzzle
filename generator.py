@@ -12,6 +12,17 @@ def find_padding(max):
         i *= 10
     return(res)
 
+def createPuzzle(dim):
+    tab = []
+    for x in range(dim):
+        tab += range(x * dim, (x+1) * dim)
+
+    random.shuffle(tab)
+    res = []
+    for i in range(dim):
+        res += [tab[i * dim: (i + 1) * dim]]
+    return res
+
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         sys.stderr.write("usage generator.py [dimension taquin]\n")
@@ -29,13 +40,10 @@ if __name__ == '__main__':
     ##  fill an array with the right number of elements depending on the puzzle dimension
     ##  asked from the user then write it on the random.txt file
 
-    res = []
-    for x in range(dim):
-        res += range(x * dim, (x+1) * dim)
-
-    random.shuffle(res)
+    res = createPuzzle(dim)
     f = open('random.txt', "w+")
     padding = find_padding(dim * dim)
     f.write("## Randomly generated taquin of dimension "+ str(dim) +" ##\n")
+    print(res)
     for x in range(dim):
-        f.write(' '.join(str(e).ljust(padding) for e in res[x * dim: (x + 1) * dim])+"\n")
+        f.write(' '.join(str(e).ljust(padding) for e in res[x])+"\n")
