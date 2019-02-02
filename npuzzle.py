@@ -6,7 +6,7 @@ from generator import createPuzzle
 
 try:
     ##TODO if no argument is given make a random puzzle
-    res = parse.parse_file(sys.argv[1]) if len(sys.argv) > 1 else createPuzzle(3)
+    res = parse.parse_file(sys.argv[1]) if len(sys.argv) > 1 else createPuzzle(4)
     model = Model(len(res)).model
     # print(tak)
 except Exception as e:

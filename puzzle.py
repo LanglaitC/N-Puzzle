@@ -2,6 +2,7 @@ import math
 from generator import *
 import copy
 import time
+import heapq
 
 class Puzzle:
     def __init__(self, res, model):
@@ -143,36 +144,37 @@ class Puzzle:
         if (self.solvable == False):
             print("Taquin isn't solvable, try a new one")
         else:
-            open_list = [{"tak": self.tak, "h": 0, "c":0, "cost":0, 'parent':False}]
+            heuristic_value = self.heuristic['newton'](self.tak)
+            open_list = []
+            heapq.heappush(open_list, (heuristic_value, heuristic_value, 0, self.tak, {"tak": self.tak, "h": heuristic_value, "c":0, "cost":heuristic_value, 'parent':False}))
             open_list_hash = {}
-            open_list_hash[open_list[0]['tak']] = open_list[0]['cost']
+            open_list_hash[open_list[0][4]['tak']] = open_list[0][0]
             closed_list = {}
             i = 0
             while len(open_list):
                 i += 1
-                current = open_list.pop(0)
-                if current["tak"] == self.model:
+                current = heapq.heappop(open_list)
+                if current[1] == 0:
                     #result = self.get_result_in_order(current)
-                    print(current['c']);
+                    print(current[0]);
                     #for each in result:
                     #    self.print_result(each['tak'], each['h'])
                     return True
-                del open_list_hash[current['tak']]
-                neighbours = self.find_all_neighbours(current["tak"])
+                del open_list_hash[current[3]]
+                neighbours = self.find_all_neighbours(current[3])
                 to_insert = []
                 for each in neighbours:
-                    new = {"tak":each, "h":self.heuristic["newton"](each) ,"c": current["c"] + 1, "parent": current}
+                    new = {"tak":each, "h":self.heuristic["newton"](each) ,"c": current[2] + 1, "parent": current[4]}
                     new["cost"] = new["h"] + new["c"]
                     to_insert.append(new)
-                to_insert.sort(key=lambda x: x['cost'], reverse=True)
                 for each in to_insert:
                     if self.isInList(each, open_list_hash, closed_list):
                         pass
                     else:
-                        open_list.insert(0, each)
+                        heapq.heappush(open_list, (each["cost"], each['h'], each['c'], each['tak'], each))
                         open_list_hash[each['tak']] = each['cost']
-                closed_list[current['tak']] = current['cost']
-                open_list.sort(key=lambda x: x['cost'], reverse=False)
+                    #print(open_list[0][2], len(open_list))
+                closed_list[current[3]] = current[0]
                 
                 
 
