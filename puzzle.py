@@ -13,7 +13,8 @@ class Puzzle:
         self.heuristic = {"newton": self.newton_heuristic, "outta_place": self.outta_place_heuristic}
         self.model = self.to_tuple(self.model)
         self.tak = self.to_tuple(self.tak)
-        self.solve()
+        self.outta_place_heuristic(self.tak)
+        # self.solve()
 
     def to_tuple(self, matrix):
         tab = []
@@ -82,11 +83,35 @@ class Puzzle:
 
     def outta_place_heuristic(self, tab):
         res = 0
-        for i in range(self.dim):
-            for j in range(self.dim):
-                if (tab[i * self.dim + j] != self.model[i * self.dim + j]):
-                    res += 1
+        for i in range(self.dim * self.dim):
+            if (tab[i] != self.model[i]):
+                res += 1
         return res
+
+    def different_sign(self, a, b):
+        if (a >= 0 and b >= 0) or (a <= 0 and b <= 0):
+            return False
+        return True
+
+    def linear_conflict(self, tab):
+        conflict = 0
+        for i in range(self.dim * self.dim - 1):
+            if i / self.dim == self.find_elem(self.model, tab[i]) / self.dim:
+                j = 1
+                while (j + i % self.dim < self.dim):
+                    if (i + j) / self.dim == self.find_elem(self.model, tab[i + j]) / self.dim and tab[i + j] != 0 and tab[i] != 0:
+                        if self.different_sign(j, self.find_elem(self.model, tab[i + j]) % self.dim - self.find_elem(self.model, tab[i]) % self.dim):
+                            conflict += 1
+                    j += 1
+            if i % self.dim == self.find_elem(self.model, tab[i]) % self.dim:
+                j = self.dim
+                while ((j + i) / self.dim < self.dim):
+                    if (i + j) % self.dim == self.find_elem(self.model, tab[i + j]) % self.dim and tab[i + j] != 0 and tab[i] != 0:
+                        if self.different_sign(j, self.find_elem(self.model, tab[i + j]) / self.dim - self.find_elem(self.model, tab[i]) / self.dim):
+                            conflict += 1
+                    j += self.dim 
+        print conflict
+        return conflict
     
     def isInList(self, new, opened, closed):
         if new['tak'] in opened:
