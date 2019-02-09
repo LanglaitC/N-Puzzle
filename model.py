@@ -5,6 +5,7 @@ class Model:
     def __init__(self, len):
         self.dim = len
         self.model = self.build()
+        self.model_dic = self.build_dic()
 
     def build(self):
         x = int(math.ceil(self.dim / 2))
@@ -31,6 +32,13 @@ class Model:
                 k += 1
             s += 2 * n + 2 * (n - 2)
         return model
+
+    def build_dic(self):
+        model = {}
+        for i in range(self.dim):
+            for j in range(self.dim):
+                model[self.model[i][j]] = i * self.dim + j
+        return model 
 
 
     def __str__(self):

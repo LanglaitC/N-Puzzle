@@ -5,16 +5,16 @@ import time
 import heapq
 
 class Puzzle:
-    def __init__(self, res, model):
+    def __init__(self, res, model, model_dic):
         self.tak = res
         self.dim = len(res)
         self.model = model
+        self.model_dic = model_dic
         self.solvable = self.find_d() % 2 == self.find_p() % 2
-        self.heuristic = {"newton": self.newton_heuristic, "outta_place": self.outta_place_heuristic}
-        self.model = self.to_tuple(self.model)
+        self.heuristic = {"manhattan": self.manhattan_heuristic, "outta_place": self.outta_place_heuristic}
         self.tak = self.to_tuple(self.tak)
-        self.outta_place_heuristic(self.tak)
-        # self.solve()
+        self.model = self.to_tuple(self.model)
+        self.solve()
 
     def to_tuple(self, matrix):
         tab = []
@@ -72,12 +72,12 @@ class Puzzle:
                 if tab[i * self.dim + j] == elem:
                     return i * self.dim + j
 
-    def newton_heuristic(self, tab):
+    def manhattan_heuristic(self, tab):
         res = 0
         for i in range(self.dim):
             for j in range(self.dim):
                 pos = i * self.dim + j
-                pos_in_model = self.find_elem(self.model, tab[i * self.dim + j])
+                pos_in_model = self.model_dic[tab[i * self.dim + j]]
                 res += math.fabs(pos_in_model % self.dim - pos % self.dim) + math.fabs(math.floor(pos_in_model / self.dim) - math.floor(pos / self.dim))
         return res
 
@@ -95,19 +95,19 @@ class Puzzle:
 
     def linear_conflict(self, tab):
         conflict = 0
-        for i in range(self.dim * self.dim - 1):
-            if i / self.dim == self.find_elem(self.model, tab[i]) / self.dim:
+        for i in range(self.dim * self.dim):
+            if i / self.dim == self.model_dic[tab[i]] / self.dim:
                 j = 1
                 while (j + i % self.dim < self.dim):
-                    if (i + j) / self.dim == self.find_elem(self.model, tab[i + j]) / self.dim and tab[i + j] != 0 and tab[i] != 0:
-                        if self.different_sign(j, self.find_elem(self.model, tab[i + j]) % self.dim - self.find_elem(self.model, tab[i]) % self.dim):
+                    if (i + j) / self.dim == self.model_dic[tab[i + j]] / self.dim and tab[i + j] != 0 and tab[i] != 0:
+                        if self.different_sign(j, self.model_dic[tab[i + j]] % self.dim - self.model_dic[tab[i]] % self.dim):
                             conflict += 1
                     j += 1
-            if i % self.dim == self.find_elem(self.model, tab[i]) % self.dim:
+            if i % self.dim == self.model_dic[tab[i]] % self.dim:
                 j = self.dim
                 while ((j + i) / self.dim < self.dim):
-                    if (i + j) % self.dim == self.find_elem(self.model, tab[i + j]) % self.dim and tab[i + j] != 0 and tab[i] != 0:
-                        if self.different_sign(j, self.find_elem(self.model, tab[i + j]) / self.dim - self.find_elem(self.model, tab[i]) / self.dim):
+                    if (i + j) % self.dim == self.model_dic[tab[i + j]] % self.dim and tab[i + j] != 0 and tab[i] != 0:
+                        if self.different_sign(j, self.model_dic[tab[i + j]] / self.dim - self.model_dic[tab[i]] / self.dim):
                             conflict += 1
                     j += self.dim 
         print conflict
@@ -117,9 +117,7 @@ class Puzzle:
         if new['tak'] in opened:
             return True
         if new["tak"] in closed:
-            if (closed[new['tak']] > new['cost']):
-                return False
-            return True
+            return False
         return False
 
     def get_result_in_order(self, oldest):
@@ -169,7 +167,7 @@ class Puzzle:
         if (self.solvable == False):
             print("Taquin isn't solvable, try a new one")
         else:
-            heuristic_value = self.heuristic['newton'](self.tak)
+            heuristic_value = self.heuristic['manhattan'](self.tak)
             open_list = []
             heapq.heappush(open_list, (heuristic_value, heuristic_value, 0, self.tak, {"tak": self.tak, "h": heuristic_value, "c":0, "cost":heuristic_value, 'parent':False}))
             open_list_hash = {}
@@ -181,27 +179,22 @@ class Puzzle:
                 current = heapq.heappop(open_list)
                 if current[1] == 0:
                     #result = self.get_result_in_order(current)
-                    print(current[0]);
+                    print(current[0])
                     #for each in result:
                     #    self.print_result(each['tak'], each['h'])
                     return True
                 del open_list_hash[current[3]]
+                closed_list[current[3]] = current[0]
                 neighbours = self.find_all_neighbours(current[3])
                 to_insert = []
                 for each in neighbours:
-                    new = {"tak":each, "h":self.heuristic["newton"](each) ,"c": current[2] + 1, "parent": current[4]}
+                    new = {"tak":each, "h":self.heuristic["manhattan"](each) ,"c": current[2] + 1, "parent": current[4]}
                     new["cost"] = new["h"] + new["c"]
                     to_insert.append(new)
                 for each in to_insert:
                     if self.isInList(each, open_list_hash, closed_list):
                         pass
                     else:
-                        heapq.heappush(open_list, (each["cost"], each['h'], each['c'], each['tak'], each))
+                        heapq.heappush(open_list, (each["cost"], each['h'], each['c'], each['tak'], each['parent']))
                         open_list_hash[each['tak']] = each['cost']
                     #print(open_list[0][2], len(open_list))
-                closed_list[current[3]] = current[0]
-                
-                
-
-
-
