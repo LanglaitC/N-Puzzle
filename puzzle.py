@@ -6,12 +6,13 @@ import heapq
 
 class Puzzle:
     def __init__(self, res, model, model_dic):
+        self.currentHeuristic = "linear_man"
         self.tak = res
         self.dim = len(res)
         self.model = model
         self.model_dic = model_dic
         self.solvable = self.find_d() % 2 == self.find_p() % 2
-        self.heuristic = {"manhattan": self.manhattan_heuristic, "outta_place": self.outta_place_heuristic}
+        self.heuristic = {"manhattan": self.manhattan_heuristic, "outta_place": self.outta_place_heuristic, "linear_man": self.linear_man_heuristic}
         self.tak = self.to_tuple(self.tak)
         self.model = self.to_tuple(self.model)
         self.solve()
@@ -76,15 +77,16 @@ class Puzzle:
         res = 0
         for i in range(self.dim):
             for j in range(self.dim):
-                pos = i * self.dim + j
-                pos_in_model = self.model_dic[tab[i * self.dim + j]]
-                res += math.fabs(pos_in_model % self.dim - pos % self.dim) + math.fabs(math.floor(pos_in_model / self.dim) - math.floor(pos / self.dim))
+                if tab[i * self.dim + j] != 0:
+                    pos = i * self.dim + j
+                    pos_in_model = self.model_dic[tab[i * self.dim + j]]
+                    res += math.fabs(pos_in_model % self.dim - pos % self.dim) + math.fabs(math.floor(pos_in_model / self.dim) - math.floor(pos / self.dim))
         return res
 
     def outta_place_heuristic(self, tab):
         res = 0
         for i in range(self.dim * self.dim):
-            if (tab[i] != self.model[i]):
+            if (tab[i] != self.model[i]) and tab[i] != 0:
                 res += 1
         return res
 
@@ -96,28 +98,28 @@ class Puzzle:
     def linear_conflict(self, tab):
         conflict = 0
         for i in range(self.dim * self.dim):
-            if i / self.dim == self.model_dic[tab[i]] / self.dim:
+            if i / self.dim == self.model_dic[tab[i]] / self.dim and tab[i] != 0:
                 j = 1
                 while (j + i % self.dim < self.dim):
                     if (i + j) / self.dim == self.model_dic[tab[i + j]] / self.dim and tab[i + j] != 0 and tab[i] != 0:
                         if self.different_sign(j, self.model_dic[tab[i + j]] % self.dim - self.model_dic[tab[i]] % self.dim):
                             conflict += 1
                     j += 1
-            if i % self.dim == self.model_dic[tab[i]] % self.dim:
+            if i % self.dim == self.model_dic[tab[i]] % self.dim and tab[i] != 0:
                 j = self.dim
                 while ((j + i) / self.dim < self.dim):
                     if (i + j) % self.dim == self.model_dic[tab[i + j]] % self.dim and tab[i + j] != 0 and tab[i] != 0:
                         if self.different_sign(j, self.model_dic[tab[i + j]] / self.dim - self.model_dic[tab[i]] / self.dim):
                             conflict += 1
                     j += self.dim 
-        print conflict
         return conflict
+
+    def linear_man_heuristic(self, tab):
+        return self.manhattan_heuristic(tab) + 2 * self.linear_conflict(tab)
     
-    def isInList(self, new, opened, closed):
-        if new['tak'] in opened:
+    def isInList(self, new, liste):
+        if new in liste:
             return True
-        if new["tak"] in closed:
-            return False
         return False
 
     def get_result_in_order(self, oldest):
@@ -167,12 +169,16 @@ class Puzzle:
         if (self.solvable == False):
             print("Taquin isn't solvable, try a new one")
         else:
-            heuristic_value = self.heuristic['manhattan'](self.tak)
+            heuristic_value = self.heuristic[self.currentHeuristic](self.tak)
             open_list = []
-            heapq.heappush(open_list, (heuristic_value, heuristic_value, 0, self.tak, {"tak": self.tak, "h": heuristic_value, "c":0, "cost":heuristic_value, 'parent':False}))
+            firstValue = (heuristic_value, heuristic_value, 0, self.tak, False)
+            heapq.heappush(open_list, firstValue)
             open_list_hash = {}
-            open_list_hash[open_list[0][4]['tak']] = open_list[0][0]
+            open_list_hash[open_list[0][3]] = {"tak": self.tak, "h": heuristic_value, "c": 0, "cost": heuristic_value, "parent": False}
             closed_list = {}
+            vueClosed = 0
+            vueOpen = 0
+            vue = 0
             i = 0
             while len(open_list):
                 i += 1
@@ -185,16 +191,22 @@ class Puzzle:
                     return True
                 del open_list_hash[current[3]]
                 closed_list[current[3]] = current[0]
-                neighbours = self.find_all_neighbours(current[3])
-                to_insert = []
-                for each in neighbours:
-                    new = {"tak":each, "h":self.heuristic["manhattan"](each) ,"c": current[2] + 1, "parent": current[4]}
-                    new["cost"] = new["h"] + new["c"]
-                    to_insert.append(new)
-                for each in to_insert:
-                    if self.isInList(each, open_list_hash, closed_list):
+                for each in self.find_all_neighbours(current[3]):
+                    if self.isInList(each, closed_list):
+                        vueClosed += 1
                         pass
+                    new = {"tak":each, "h": self.heuristic[self.currentHeuristic](each) ,"c": current[2] + 1, "parent": current[4]}
+                    new["cost"] = new["h"] + new["c"]
+                    if not self.isInList(each, open_list_hash):
+                        vueOpen += 1
+                        heapq.heappush(open_list, (new["cost"], new['h'], new['c'], new['tak'], new['parent']))
+                        open_list_hash[new['tak']] = new
                     else:
-                        heapq.heappush(open_list, (each["cost"], each['h'], each['c'], each['tak'], each['parent']))
-                        open_list_hash[each['tak']] = each['cost']
-                    #print(open_list[0][2], len(open_list))
+                        vue += 1
+                        if (open_list_hash[each]["cost"] < new['cost']):
+                            for i in range(len(open_list)):
+                                if (open_list[i][3] == each):
+                                    actual_node = open_list[i]
+                                    pass
+                            actual_node = (actual_node[0], actual_node[1], actual_node[2], actual_node[3], actual_node[4])
+                print('dans close', vueClosed, 'open', vueOpen, 'change value', vue, 'a visiter', len(open_list), 'vue', i)
