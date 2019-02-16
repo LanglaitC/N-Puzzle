@@ -12,7 +12,7 @@ class Puzzle:
         self.model = model
         self.model_dic = model_dic
         self.solvable = self.find_d() % 2 == self.find_p() % 2
-        self.heuristic = {"manhattan": self.manhattan_heuristic, "outta_place": self.outta_place_heuristic, "linear_man": self.linear_man_heuristic}
+        self.heuristic = {"manhattan": self.manhattan_heuristic, "outta_place": self.outta_place_heuristic, "linear_man": self.linear_man_heuristic, "euclidian": self.euclidian_heuristic}
         self.tak = self.to_tuple(self.tak)
         self.model = self.to_tuple(self.model)
         self.solve()
@@ -72,6 +72,19 @@ class Puzzle:
             for j in range(self.dim):
                 if tab[i * self.dim + j] == elem:
                     return i * self.dim + j
+
+    def euclidian_heuristic(self, tab):
+        res = 0
+        for i in range(self.dim):
+            for j in range(self.dim):
+                if tab[i * self.dim + j] != 0:
+                    pos = i * self.dim + j
+                    pos_in_model = self.model_dic[tab[i * self.dim + j]]
+                    dx = pos_in_model % self.dim - pos % self.dim
+                    dy = math.floor(pos_in_model / self.dim) - math.floor(pos / self.dim)
+                    res += math.sqrt(dx * dx + dy * dy)
+        return res
+
 
     def manhattan_heuristic(self, tab):
         res = 0
