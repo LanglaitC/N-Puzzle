@@ -129,8 +129,19 @@ class Puzzle:
             oldest = oldest['parent']
         return (res)
 
-    def print_result(self, tab, h):
-        print('Heuristic: ' +  str(h))
+    def print_resolution(self, current, state):
+        print('Complexity in time: ' + str(state['time']))
+        print('Complexity in space: ' + str(state['space']))
+        currentParent = current[4]
+        print(current)
+        while currentParent:
+            print_result(current[3])
+            currentParent = currentParent[4]
+        print('Final cost: ' + str(current[0]))
+        return
+        
+
+    def print_result(self, tab):
         for i in range(self.dim):
             print(tab[i*self.dim:i*self.dim+self.dim])
         print('\n')
@@ -176,37 +187,39 @@ class Puzzle:
             open_list_hash = {}
             open_list_hash[open_list[0][3]] = {"tak": self.tak, "h": heuristic_value, "c": 0, "cost": heuristic_value, "parent": False}
             closed_list = {}
-            vueClosed = 0
-            vueOpen = 0
-            vue = 0
-            i = 0
+            complexity = {'time': 1, 'space': 1}
+            # start = time.time()
             while len(open_list):
-                i += 1
+                # start = time.time()
                 current = heapq.heappop(open_list)
                 if current[1] == 0:
-                    #result = self.get_result_in_order(current)
-                    print(current[0])
-                    #for each in result:
-                    #    self.print_result(each['tak'], each['h'])
+                    self.print_resolution(current, complexity)
                     return True
                 del open_list_hash[current[3]]
+                if current[3] not in closed_list:
+                    complexity['space'] += 1
                 closed_list[current[3]] = current[0]
                 for each in self.find_all_neighbours(current[3]):
                     if self.isInList(each, closed_list):
-                        vueClosed += 1
-                        pass
+                        continue
                     new = {"tak":each, "h": self.heuristic[self.currentHeuristic](each) ,"c": current[2] + 1, "parent": current[4]}
                     new["cost"] = new["h"] + new["c"]
                     if not self.isInList(each, open_list_hash):
-                        vueOpen += 1
-                        heapq.heappush(open_list, (new["cost"], new['h'], new['c'], new['tak'], new['parent']))
-                        open_list_hash[new['tak']] = new
+                        new_node = (new["cost"], new['h'], new['c'], new['tak'], new['parent'])
+                        heapq.heappush(open_list, new_node)
+                        complexity['time'] += 1
+                        complexity['space'] += 1
+                        if new['tak'] not in open_list_hash:
+                            complexity['space'] += 1
+                        open_list_hash[new['tak']] = new_node
                     else:
-                        vue += 1
-                        if (open_list_hash[each]["cost"] < new['cost']):
+                        if (open_list_hash[each][0] < new['cost']):
                             for i in range(len(open_list)):
                                 if (open_list[i][3] == each):
                                     actual_node = open_list[i]
-                                    pass
+                                    break
                             actual_node = (actual_node[0], actual_node[1], actual_node[2], actual_node[3], actual_node[4])
-                print('dans close', vueClosed, 'open', vueOpen, 'change value', vue, 'a visiter', len(open_list), 'vue', i)
+            # end = time.time()
+            # print ('TIME', end - start)
+                # end = time.time()
+                # print ('TIME', end - start)
