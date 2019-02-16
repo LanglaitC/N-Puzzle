@@ -6,7 +6,7 @@ import heapq
 
 class Puzzle:
     def __init__(self, res, model, model_dic):
-        self.currentHeuristic = "linear_man"
+        self.currentHeuristic = "manhattan"
         self.tak = res
         self.dim = len(res)
         self.model = model
@@ -133,9 +133,8 @@ class Puzzle:
         print('Complexity in time: ' + str(state['time']))
         print('Complexity in space: ' + str(state['space']))
         currentParent = current[4]
-        print(current)
         while currentParent:
-            print_result(current[3])
+            self.print_result(currentParent[3])
             currentParent = currentParent[4]
         print('Final cost: ' + str(current[0]))
         return
@@ -188,38 +187,33 @@ class Puzzle:
             open_list_hash[open_list[0][3]] = {"tak": self.tak, "h": heuristic_value, "c": 0, "cost": heuristic_value, "parent": False}
             closed_list = {}
             complexity = {'time': 1, 'space': 1}
-            # start = time.time()
             while len(open_list):
-                # start = time.time()
                 current = heapq.heappop(open_list)
                 if current[1] == 0:
                     self.print_resolution(current, complexity)
                     return True
-                del open_list_hash[current[3]]
+                if (len(open_list_hash[current[3]]) == 1):
+                    del open_list_hash[current[3]]
+                else:
+                    open_list_hash[current[3]]
                 if current[3] not in closed_list:
                     complexity['space'] += 1
                 closed_list[current[3]] = current[0]
                 for each in self.find_all_neighbours(current[3]):
                     if self.isInList(each, closed_list):
                         continue
-                    new = {"tak":each, "h": self.heuristic[self.currentHeuristic](each) ,"c": current[2] + 1, "parent": current[4]}
+                    new = {"tak":each, "h": self.heuristic[self.currentHeuristic](each) ,"c": current[2] + 1, "parent": current}
                     new["cost"] = new["h"] + new["c"]
+                    new_node = (new["cost"], new['h'], new['c'], new['tak'], new['parent'])
                     if not self.isInList(each, open_list_hash):
-                        new_node = (new["cost"], new['h'], new['c'], new['tak'], new['parent'])
                         heapq.heappush(open_list, new_node)
                         complexity['time'] += 1
                         complexity['space'] += 1
                         if new['tak'] not in open_list_hash:
                             complexity['space'] += 1
-                        open_list_hash[new['tak']] = new_node
+                        open_list_hash[each] = [new_node]
                     else:
-                        if (open_list_hash[each][0] < new['cost']):
-                            for i in range(len(open_list)):
-                                if (open_list[i][3] == each):
-                                    actual_node = open_list[i]
-                                    break
-                            actual_node = (actual_node[0], actual_node[1], actual_node[2], actual_node[3], actual_node[4])
-            # end = time.time()
-            # print ('TIME', end - start)
-                # end = time.time()
-                # print ('TIME', end - start)
+                        if (open_list_hash[each][0][0] < new['cost']):
+                            heapq.heappush(open_list, new_node)
+                            open_list_hash[each].insert(0, new_node)
+                            complexity['space'] += 1
