@@ -1,4 +1,4 @@
-## Randomly generated taquin of dimension 3 ##
-2 6 4
-8 5 7
-0 3 1
+12 11 8  5
+9  7  4  2
+13 14 0  15
+6  10 1  3

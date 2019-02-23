@@ -1,5 +1,5 @@
 #!/bin/sh
 for i in {1..100}; do
-	python npuzzle.py
+	time python npuzzle.py
 done
 
