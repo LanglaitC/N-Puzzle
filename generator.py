@@ -27,7 +27,6 @@ if __name__ == '__main__':
     if len(sys.argv) != 2:
         sys.stderr.write("usage generator.py [dimension taquin]\n")
         exit(1)
-
     try:
         dim = int(sys.argv[1])
         if dim >= 100 or dim <= 0:
@@ -44,6 +43,6 @@ if __name__ == '__main__':
     f = open('random.txt', "w+")
     padding = find_padding(dim * dim)
     f.write("## Randomly generated taquin of dimension "+ str(dim) +" ##\n")
-    print(res)
+    f.write(str(dim))
     for x in range(dim):
         f.write(' '.join(str(e).ljust(padding) for e in res[x])+"\n")

@@ -52,20 +52,26 @@ def parse_file(file):
     try:
         fd = open(file)
         content = fd.read().split('\n')
+        dim = None
     except Exception:
         raise Exception("File doesn't exist or isn't valid format")
     result = []
-    dim = None
     for line in content:
         if (is_comment(line)):       ## If the lign is a comment we pass to the next one
             pass
         else:                        ##  Else we transform it into an array and add it to the final result
             convert = parse_line(line)
             if not convert: ## If we encounter empty line break
-                break
-            if dim is not None and dim != len(convert): ## If the dimension is different from the previously parsed lign, the taquin is not valid
+                continue
+            elif dim is None:
+                try: 
+                    dim = int(line)
+                except Exception:
+                    raise Exception('Dimension declaration isn\'t valid')
+            elif dim != len(convert): ## If the dimension is different from the previously parsed lign, the taquin is not valid
                 raise Exception("Invalid file, taquin should be a square")
-            dim = len(convert)
-            result.append(convert)
+            else:
+                result.append(convert)
+                dim = len(convert)
     result = check_validity(result, dim)
     return result
