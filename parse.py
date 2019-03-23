@@ -25,11 +25,15 @@ def parse_line(line):
     convert = []
     for each in line.split():
         try:
+            splitted = each.split('#')
             if each[0] == comment_charac: ## If comment character is detected stop analysing the line
-                break 
-            convert.append(int(each))  ## If the element can't be converted to int then it contains letters and is not a valid element
+                break
+            converted = int(splitted[0])
+            convert.append(converted)  ## If the element can't be converted to int then it contains letters and is not a valid element
+            if len(splitted) > 1:
+                break
         except Exception as e:
-            raise e
+            raise Exception(each + ' is not a valid number')
     if len(convert) == 0:   ## File contains an empty line, it is not valid
         return False
     return convert
@@ -47,6 +51,19 @@ def is_comment(line):
             return False
     return False            ## If no # is encountered, the lign is empty or filled with whitespaces and is not valid
     
+def checkEndFile(content, i):
+    for line in content[i:]:
+        if (is_comment(line)):
+            continue
+        else:
+            try: 
+                if (not parse_line(line)):
+                    continue
+            except:
+                return False
+        return False
+    return True
+
 def parse_file(file):
     '''Function that parses the file to check it and return a new taquin instance based on its content'''
     try:
@@ -56,20 +73,26 @@ def parse_file(file):
     except Exception:
         raise Exception("File doesn't exist or isn't valid format")
     result = []
-    for line in content:
+    for i, line in enumerate(content):
         if (is_comment(line)):       ## If the lign is a comment we pass to the next one
             pass
-        else:                        ##  Else we transform it into an array and add it to the final result
+        else:                  ##  Else we transform it into an array and add it to the final result
             convert = parse_line(line)
             if not convert: ## If we encounter empty line break
-                continue
+                if (checkEndFile(content, i)):
+                    break
+                else:
+                    raise Exception('Invalid puzzle format')
             elif dim is None:
                 try: 
-                    dim = int(line)
+                    if len(convert) != 1:
+                        raise(e)
+                    dim = convert[0]
+                    initDim = dim
                 except Exception:
                     raise Exception('Dimension declaration isn\'t valid')
             elif dim != len(convert): ## If the dimension is different from the previously parsed lign, the taquin is not valid
-                raise Exception("Invalid file, taquin should be a square")
+                raise Exception("Invalid file, wrong puzzle dimension")
             else:
                 result.append(convert)
                 dim = len(convert)

@@ -6,14 +6,15 @@ from solve import *
 from generator import createPuzzle
 
 try:
-    tak = parse.parse_file(sys.argv[1]) if len(sys.argv) > 1 else createPuzzle(4)
+    tak = parse.parse_file(sys.argv[1]) if len(sys.argv) > 1 else createPuzzle(3)
     model = Model(len(tak))
     solvable = Solvability(tak, model.model).solvable
     if not solvable:
         print('N-Puzzle is not solvable')
         exit()
 except Exception as e:
-   raise(e)
+    sys.stderr.write(str(e) + '\n')
+    sys.exit()
 print('👋   Ok, we have a puzzle to solve. What algorithm shall we use ? 💁')
 print('1. A*')
 print('2. Greedy Search')
