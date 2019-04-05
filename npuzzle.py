@@ -4,9 +4,21 @@ from model import *
 from solvability import *
 from solve import *
 from generator import createPuzzle
+import os
+import argparse
 
 try:
-    tak = parse.parse_file(sys.argv[1]) if len(sys.argv) > 1 else createPuzzle(3)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-f", "--file", help="The file to resolve", type=str)
+    args = parser.parse_args()
+    if (args.file is not None):
+        if (os.path.isfile(args.file)):
+            tak = parse.parse_file(args.file)
+        else:
+            sys.stderr.write("File is not valid\n")
+            sys.exit(1)
+    else:
+        tak = createPuzzle(3)
     model = Model(len(tak))
     solvable = Solvability(tak, model.model).solvable
     if not solvable:
